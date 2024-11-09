@@ -28,7 +28,9 @@ class PickBanNotifier extends AsyncNotifier<PickBanState> {
   PickBanState _processSelection(Champion champion, PickBanState currentState) {
     switch (currentState.currentPhase) {
       case PickBanPhase.firstBanPhase:
+        /// 맨 처음 양팀 밴픽 3개씩
         return _handleFirstBanPhase(champion, currentState);
+        /// 블루 1, 레드2, 블루 2, 레드 1 순으로 픽
       case PickBanPhase.firstPickPhase:
         return _handleFirstPickPhase(champion, currentState);
       case PickBanPhase.secondBanPhase:
@@ -41,7 +43,9 @@ class PickBanNotifier extends AsyncNotifier<PickBanState> {
   }
 
   PickBanState _handleFirstBanPhase(Champion champion, PickBanState currentState) {
+    /// 맨 처음 양팀 밴픽 3개씩
     if (currentState.isBlueTeamTurn) {
+      // 밴 추가
       final newBlueBans = [...currentState.blueBans, champion];
       final shouldSwitchPhase = newBlueBans.length == 3 && currentState.redBans.length == 3;
       
@@ -66,19 +70,29 @@ class PickBanNotifier extends AsyncNotifier<PickBanState> {
     if (currentState.isBlueTeamTurn) {
       final newBluePicks = [...currentState.bluePicks, champion];
       final shouldSwitchPhase = newBluePicks.length == 3 && currentState.redPicks.length == 3;
-      
+
+      bool isChangeTurn = true;
+      // 첫 블루 픽의 경우
+      final bool isFirstPick = newBluePicks.length == 1 || newBluePicks.length == 3;
+
+      if(isFirstPick) {
+        isChangeTurn = false;
+      }
+
       return currentState.copyWith(
         bluePicks: newBluePicks,
-        isBlueTeamTurn: false,
+        isBlueTeamTurn: isChangeTurn,
         currentPhase: shouldSwitchPhase ? PickBanPhase.secondBanPhase : PickBanPhase.firstPickPhase,
       );
     } else {
       final newRedPicks = [...currentState.redPicks, champion];
       final shouldSwitchPhase = currentState.bluePicks.length == 3 && newRedPicks.length == 3;
-      
+
+      final bool isChangeTurn = newRedPicks.length == 2 && currentState.bluePicks.length == 1;
+
       return currentState.copyWith(
         redPicks: newRedPicks,
-        isBlueTeamTurn: true,
+        isBlueTeamTurn: isChangeTurn,
         currentPhase: shouldSwitchPhase ? PickBanPhase.secondBanPhase : PickBanPhase.firstPickPhase,
       );
     }
@@ -110,10 +124,13 @@ class PickBanNotifier extends AsyncNotifier<PickBanState> {
     if (currentState.isBlueTeamTurn) {
       final newBluePicks = [...currentState.bluePicks, champion];
       final shouldComplete = newBluePicks.length == 5 && currentState.redPicks.length == 5;
-      
+
+      final bool isChangeTurn = newBluePicks.length == 4;
+
+
       return currentState.copyWith(
         bluePicks: newBluePicks,
-        isBlueTeamTurn: false,
+        isBlueTeamTurn: isChangeTurn,
         currentPhase: shouldComplete ? PickBanPhase.completed : PickBanPhase.secondPickPhase,
       );
     } else {
