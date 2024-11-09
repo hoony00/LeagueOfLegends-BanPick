@@ -2,10 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/pick_ban_state.dart';
 import '../../../core/models/champion.dart';
 
+
+final pickBanProvider = AsyncNotifierProvider<PickBanNotifier, PickBanState>(
+      () => PickBanNotifier(),
+);
+
 class PickBanNotifier extends AsyncNotifier<PickBanState> {
   @override
   Future<PickBanState> build() async {
-    return PickBanState(
+    return const PickBanState(
       blueBans: [],
       redBans: [],
       bluePicks: [],
@@ -127,7 +132,6 @@ class PickBanNotifier extends AsyncNotifier<PickBanState> {
 
       final bool isChangeTurn = newBluePicks.length == 4;
 
-
       return currentState.copyWith(
         bluePicks: newBluePicks,
         isBlueTeamTurn: isChangeTurn,
@@ -146,7 +150,7 @@ class PickBanNotifier extends AsyncNotifier<PickBanState> {
   }
 
   Future<void> resetGame() async {
-    state = AsyncData(PickBanState(
+    state = const AsyncData(PickBanState(
       blueBans: [],
       redBans: [],
       bluePicks: [],
@@ -156,7 +160,3 @@ class PickBanNotifier extends AsyncNotifier<PickBanState> {
     ));
   }
 }
-
-final pickBanProvider = AsyncNotifierProvider<PickBanNotifier, PickBanState>(
-  () => PickBanNotifier(),
-); 

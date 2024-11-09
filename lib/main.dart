@@ -5,21 +5,29 @@ import 'core/constants/theme.dart';
 
 void main() {
   runApp(
-    const ProviderScope(
+     ProviderScope(
       child: MyApp(),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+   MyApp({super.key});
+
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'LoL Pick Ban',
+      key: navigatorKey,
       theme: AppTheme.darkTheme,
       home: const PickBanScreen(),
+      builder: (context, child) {
+        return Scaffold(
+          body: child,
+        );
+      },
     );
   }
 }

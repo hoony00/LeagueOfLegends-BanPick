@@ -14,7 +14,6 @@ import '../widgets/game_drawer.dart';
 class PickBanScreen extends ConsumerWidget {
   const PickBanScreen({super.key});
 
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final pickBanState = ref.watch(pickBanProvider);
@@ -28,7 +27,7 @@ class PickBanScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.background,
         title: const Text(
-          'LOL DRAFT',
+          'LOL BANPICK',
           style: TextStyle(
             color: AppColors.gold,
             fontWeight: FontWeight.bold,
@@ -43,7 +42,8 @@ class PickBanScreen extends ConsumerWidget {
           data: (state) => SingleChildScrollView(
             child: Column(
               children: [
-                _buildHeader(context, state),
+               // _buildHeader(context, state),
+                const SizedBox(height: 8),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Column(
@@ -74,13 +74,19 @@ class PickBanScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 16),
                 _buildPhaseIndicator(context, state),
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16),
-                  child: ChampionSearchBar(),
+                Visibility(
+                  visible: state.currentPhase != PickBanPhase.completed,
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    child: ChampionSearchBar(),
+                  ),
                 ),
-                SizedBox(
-                  height: 400,
-                  child: _buildChampionGrid(ref, state, searchQuery),
+                Visibility(
+                  visible: state.currentPhase != PickBanPhase.completed,
+                  child: SizedBox(
+                    height: 400,
+                    child: _buildChampionGrid(ref, state, searchQuery),
+                  ),
                 ),
               ],
             ),
@@ -213,11 +219,11 @@ class PickBanScreen extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'LOL DRAFT',
+            'League of Legends',
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-              color: AppColors.gold,
-              fontWeight: FontWeight.bold,
-            ),
+                  color: AppColors.gold,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
         ],
       ),
@@ -227,7 +233,7 @@ class PickBanScreen extends ConsumerWidget {
   Widget _buildPhaseIndicator(BuildContext context, PickBanState state) {
     final phaseText = _getPhaseText(state.currentPhase);
     final turnText = state.isBlueTeamTurn ? 'Blue Team Turn' : 'Red Team Turn';
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -235,22 +241,55 @@ class PickBanScreen extends ConsumerWidget {
           Text(
             phaseText,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: AppColors.gold,
-            ),
+                  color: AppColors.gold,
+                ),
           ),
           const SizedBox(height: 8),
-          Text(
-            turnText,
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              color: state.isBlueTeamTurn ? AppColors.primaryBlue : AppColors.primaryRed,
+          Visibility(
+            visible: state.currentPhase != PickBanPhase.completed,
+            child: Text(
+              turnText,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: state.isBlueTeamTurn
+                        ? AppColors.primaryBlue
+                        : AppColors.primaryRed,
+                  ),
             ),
+          ),
+          const SizedBox(height: 10),
+          // 다시 시작
+          Visibility(
+            visible: state.currentPhase == PickBanPhase.completed,
+            child: Consumer(builder: (context, ref, child) {
+              return InkWell(
+                onTap: () => ref.read(pickBanProvider.notifier).resetGame(),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.refresh_rounded,
+                      color: AppColors.gold,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      '게임 리셋',
+                      style: TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChampionGrid(WidgetRef ref, PickBanState state, String searchQuery) {
+  Widget _buildChampionGrid(
+      WidgetRef ref, PickBanState state, String searchQuery) {
     final allAvailableChampions = ChampionService.getAvailableChampions(
       bannedChampions: [...state.blueBans, ...state.redBans],
       pickedChampions: [...state.bluePicks, ...state.redPicks],
@@ -281,7 +320,7 @@ class PickBanScreen extends ConsumerWidget {
       case PickBanPhase.secondPickPhase:
         return '두 번째 픽 단계';
       case PickBanPhase.completed:
-        return '드래프트 완료';
+        return '밴픽 완료';
     }
   }
 }
@@ -350,4 +389,4 @@ class _EmptySlot extends StatelessWidget {
       ),
     );
   }
-} 
+}

@@ -17,7 +17,7 @@ class CompletionDialog extends StatelessWidget {
     return AlertDialog(
       backgroundColor: AppColors.surface,
       title: const Text(
-        '드래프트 완료',
+        '밴픽 완료',
         style: TextStyle(color: AppColors.gold),
       ),
       content: Column(
